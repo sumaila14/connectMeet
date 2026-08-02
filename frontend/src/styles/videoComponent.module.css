@@ -1,0 +1,69 @@
+.meetVideoContainer {
+    position: relative;
+    height: 100vh;
+    background: rgb(1, 4, 48);
+}
+
+.meetUserVideo {
+    position: absolute;
+    bottom: 10vh;
+    height: 20vh;
+    width: auto;
+    left: 0;
+    border-radius: 20px;
+}
+
+.buttonContainers {
+    position: absolute;
+    width: 100vw;
+    bottom: 0;
+    text-align: center;
+}
+
+.buttonContainers svg {
+    font-size: 3rem;
+}
+
+/* ✅ Updated Conference View Container */
+.conferenceView {
+    display: grid;
+    /* Automatically creates a grid layout for multiple users */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 20px;
+    
+    /* Give space for Chat on the right side */
+    width: calc(100vw - 32vw);
+    max-height: 75vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.conferenceView video {
+    width: 100%;
+    /* Let aspect ratio handle height naturally so faces aren't cropped */
+    aspect-ratio: 16 / 9;
+    object-fit: contain; /* Set to 'cover' if you prefer filled boxes without letterboxing */
+    background-color: #000; /* Dark background for letterboxed video */
+    border-radius: 12px;
+}
+.chatRoom {
+    position: absolute;
+    height: 90vh;
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    width: 30vw;
+    padding-inline: 20px;
+}
+
+.chatContainer {
+    position: relative;
+    height: 100%;
+}
+
+
+.chattingArea {
+    position: absolute;
+    bottom: 0;
+}
