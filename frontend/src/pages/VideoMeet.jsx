@@ -16,7 +16,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 
 // import "../styles/videoComponent.css";
 
-const server_url = "http://localhost:8000";
+const server_url = server;
 
 const connections = {};
 
