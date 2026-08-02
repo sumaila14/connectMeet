@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import "../App.css";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const createRoom = () => {
-    const roomId = Math.random().toString(36).substring(2, 8);
-    navigate(`/${roomId}`);
+  //   const createRoom = () => {
+  //     const roomId = Math.random().toString(36).substring(2, 8);
+  //     navigate(`/${roomId}`);
+  //   };
+
+  const [meetingCode, setMeetingCode] = useState("");
+
+  const joinRoom = () => {
+    if (!meetingCode.trim()) {
+      alert("Enter Meeting Code");
+      return;
+    }
+
+    navigate(`/${meetingCode}`);
   };
 
   return (
@@ -17,8 +28,29 @@ export default function LandingPage() {
           <h2>Connect Meet</h2>
         </div>
 
-        <div className="navlist">
+        {/* <div className="navlist">
           <p onClick={createRoom}>Join as Guest</p>
+
+          <p onClick={() => navigate("/auth")}>Register</p>
+
+          <div
+            onClick={() => navigate("/auth")}
+            role="button"
+            style={{ cursor: "pointer" }}
+          >
+            <p>Login</p>
+          </div>
+        </div> */}
+
+        <div className="navlist">
+          <input
+            type="text"
+            placeholder="Meeting Code"
+            value={meetingCode}
+            onChange={(e) => setMeetingCode(e.target.value)}
+          />
+
+          <button onClick={joinRoom}>Join as Guest</button>
 
           <p onClick={() => navigate("/auth")}>Register</p>
 
