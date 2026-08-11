@@ -1,5 +1,3 @@
-// import { Connection } from "mongoose";
-import mongoose from "mongoose";
 import { Server } from "socket.io";
 
 let connections = {};

@@ -24,29 +24,21 @@
     font-size: 3rem;
 }
 
-/* ✅ Updated Conference View Container */
-.conferenceView {
-    display: grid;
-    /* Automatically creates a grid layout for multiple users */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-    padding: 20px;
+.conferenceView { 
+
+    display: flex;
     
-    /* Give space for Chat on the right side */
-    width: calc(100vw - 32vw);
-    max-height: 75vh;
-    overflow-y: auto;
-    box-sizing: border-box;
+    padding: 10px;
+    gap: 10px;
 }
 
-.conferenceView video {
-    width: 100%;
-    /* Let aspect ratio handle height naturally so faces aren't cropped */
-    aspect-ratio: 16 / 9;
-    object-fit: contain; /* Set to 'cover' if you prefer filled boxes without letterboxing */
-    background-color: #000; /* Dark background for letterboxed video */
-    border-radius: 12px;
+.conferenceView  video {
+    width: 40vw;
+    height: 20vh;
+    min-width: 30vw;
+    border-radius: 10px;
 }
+
 .chatRoom {
     position: absolute;
     height: 90vh;
