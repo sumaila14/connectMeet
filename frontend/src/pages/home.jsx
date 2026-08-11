@@ -1,71 +1,89 @@
 import React, { useContext, useState } from "react";
-import withAuth from "../utils/withAuth";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
 import { Button, IconButton, TextField } from "@mui/material";
 import RestoreIcon from "@mui/icons-material/Restore";
+import withAuth from "../utils/withAuth";
 import { AuthContext } from "../contexts/AuthContext";
+import "../App.css";
 
 function HomeComponent() {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const [meetingCode, setMeetingCode] = useState("");
-
   const { addToUserHistory } = useContext(AuthContext);
-  let handleJoinVideoCall = async () => {
-    await addToUserHistory(meetingCode);
-    navigate(`/${meetingCode}`);
+
+  const handleJoinVideoCall = async () => {
+    if (!meetingCode.trim()) return;
+    try {
+      await addToUserHistory(meetingCode);
+      navigate(`/${meetingCode}`);
+    } catch (error) {
+      console.error("Failed to add to history:", error);
+      // Navigate anyway if history update is non-critical
+      navigate(`/${meetingCode}`);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/auth");
   };
 
   return (
     <>
-      <div className="navBar">
+      <header className="navBar">
         <div style={{ display: "flex", alignItems: "center" }}>
-          <h2>connectMeet</h2>
+          <h2>Apna Video Call</h2>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <IconButton
-            onClick={() => {
-              navigate("/history");
-            }}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div
+            onClick={() => navigate("/history")}
+            style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && navigate("/history")}
           >
-            <RestoreIcon />
-          </IconButton>
-          <p>History</p>
+            <IconButton aria-label="history">
+              <RestoreIcon />
+            </IconButton>
+            <p style={{ margin: 0 }}>History</p>
+          </div>
 
-          <Button
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/auth");
-            }}
-          >
+          <Button variant="text" onClick={handleLogout}>
             Logout
           </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="meetContainer">
+      <main className="meetContainer">
         <div className="leftPanel">
           <div>
-            <h2>Providing Quality Video Call </h2>
+            <h2>Providing Quality Video Call Just Like Quality Education</h2>
 
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
               <TextField
-                onChange={(e) => setMeetingCode(e.target.value)}
-                id="outlined-basic"
+                id="meeting-code-input"
                 label="Meeting Code"
                 variant="outlined"
+                value={meetingCode}
+                onChange={(e) => setMeetingCode(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleJoinVideoCall()}
               />
-              <Button onClick={handleJoinVideoCall} variant="contained">
+              <Button
+                onClick={handleJoinVideoCall}
+                variant="contained"
+                disabled={!meetingCode.trim()}
+              >
                 Join
               </Button>
             </div>
           </div>
         </div>
+
         <div className="rightPanel">
-          <img srcSet="/logo3.png" alt="" />
+          <img src="/logo3.png" alt="Apna Video Call Dashboard Illustration" />
         </div>
-      </div>
+      </main>
     </>
   );
 }

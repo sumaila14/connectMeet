@@ -1,158 +1,159 @@
-import { useState, useContext } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Snackbar from "@mui/material/Snackbar";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Box,
+  Grid2 as Grid,
+  Button,
+} from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
 import { AuthContext } from "../contexts/AuthContext";
 
-const defaultTheme = createTheme();
+export default function History() {
+  const { getHistoryOfUser } = useContext(AuthContext);
+  const [meetings, setMeetings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
-export default function Authentication() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [formState, setFormState] = useState(0);
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const { handleRegister, handleLogin } = useContext(AuthContext);
-
-  const handleAuth = async () => {
-    try {
-      if (formState === 0) {
-        await handleLogin(username, password);
-      } else {
-        const result = await handleRegister(name, username, password);
-
-        setMessage(result);
-        setOpen(true);
-        setError("");
-        setFormState(0);
-        setUsername("");
-        setPassword("");
-        setName("");
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setLoading(true);
+        const history = await getHistoryOfUser();
+        setMeetings(Array.isArray(history) ? history : []);
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: error.message || "Failed to fetch meeting history.",
+          severity: "error",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.log(err);
+    };
 
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError(err.message);
-      }
-    }
+    fetchHistory();
+  }, [getHistoryOfUser]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Invalid Date";
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleCloseSnackbar = (_, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleRejoinMeeting = (meetingCode) => {
+    navigate(`/${meetingCode}`);
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Grid container sx={{ height: "100vh" }}>
-        <CssBaseline />
-
-        <Grid
-          size={{ xs: 0, sm: 4, md: 7 }}
-          sx={{
-            display: { xs: "none", sm: "block" },
-            backgroundImage:
-              "url(https://source.unsplash.com/random?wallpapers)",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-
-        <Grid
-          size={{ xs: 12, sm: 8, md: 5 }}
-          component={Paper}
-          elevation={6}
-          square
+    <Box sx={{ padding: { xs: 2, sm: 4 }, maxWidth: 1200, margin: "0 auto" }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+        <IconButton
+          onClick={() => navigate("/home")}
+          color="primary"
+          aria-label="go to home"
         >
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
+          <HomeIcon />
+        </IconButton>
+        <Typography variant="h5" component="h1" fontWeight="bold">
+          Meeting History
+        </Typography>
+      </Box>
 
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <Button
-                variant={formState === 0 ? "contained" : "outlined"}
-                onClick={() => setFormState(0)}
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : meetings.length > 0 ? (
+        <Grid container spacing={2}>
+          {meetings.map((meeting, index) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={meeting._id || index}>
+              <Card
+                variant="outlined"
+                sx={{
+                  borderRadius: 2,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
               >
-                Sign In
-              </Button>
-
-              <Button
-                variant={formState === 1 ? "contained" : "outlined"}
-                onClick={() => setFormState(1)}
-              >
-                Sign Up
-              </Button>
-            </Box>
-
-            <Box component="form" noValidate sx={{ mt: 1, width: "100%" }}>
-              {formState === 1 && (
-                <TextField
-                  margin="normal"
-                  fullWidth
-                  label="Full Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              )}
-
-              <TextField
-                margin="normal"
-                fullWidth
-                label="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-
-              <TextField
-                margin="normal"
-                fullWidth
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-
-              {error && (
-                <p style={{ color: "red", marginTop: "10px" }}>{error}</p>
-              )}
-
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick={handleAuth}
-              >
-                {formState === 0 ? "Login" : "Register"}
-              </Button>
-            </Box>
-          </Box>
+                <CardContent>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Code: <strong>{meeting.meetingCode || meeting.code}</strong>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Date: {formatDate(meeting.date || meeting.createdAt)}
+                  </Typography>
+                </CardContent>
+                <Box sx={{ p: 2, pt: 0 }}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<VideoCallIcon />}
+                    onClick={() =>
+                      handleRejoinMeeting(meeting.meetingCode || meeting.code)
+                    }
+                    fullWidth
+                  >
+                    Rejoin
+                  </Button>
+                </Box>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
-      </Grid>
+      ) : (
+        <Box sx={{ textAlign: "center", py: 6, color: "text.secondary" }}>
+          <Typography variant="h6">No meeting history found</Typography>
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            Meetings you host or join will show up here.
+          </Typography>
+        </Box>
+      )}
 
       <Snackbar
-        open={open}
-        autoHideDuration={4000}
-        message={message}
-        onClose={() => setOpen(false)}
-      />
-    </ThemeProvider>
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }
